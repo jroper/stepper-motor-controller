@@ -89,7 +89,7 @@ const Adafruit_AlphaNum4 display = Adafruit_AlphaNum4();
 // This should match the wiring of the board
 #define STEP 4 // STEP PIN of the A4988 driver
 #define DIR 5 // DIR PIN of the A4988 driver
-#define SLEEP 2 // SLEEP or ENABLE PIN of the A4988 driver
+#define ENABLE 2 // ENABLE PIN of the A4988 driver, active low
 #define ROTARY_A 7 // Rotary encoder A PIN
 #define ROTARY_B 8 // Rotary encoder B PIN
 #define MODE_SWITCH 9 // Rotary encoder switch PIN
@@ -127,7 +127,7 @@ void setup() {
 
   pinMode(STEP, OUTPUT);
   pinMode(DIR, OUTPUT);
-  pinMode(SLEEP, OUTPUT);
+  pinMode(ENABLE, OUTPUT);
   pinMode(RUNNING_LED, OUTPUT);
   pinMode(ROTARY_A, INPUT);
   pinMode(ROTARY_B, INPUT);
@@ -165,8 +165,8 @@ void setup() {
 
   // Initialize direction of the stepper motor
   digitalWrite(DIR, direction);
-  // Ensure we start in sleep mode.
-  digitalWrite(SLEEP, LOW);
+  // Ensure we start disabled - the ENABLE pin is active low.
+  digitalWrite(ENABLE, HIGH);
 
   // read the encoder to initialise it
   readEncoder();
@@ -214,7 +214,7 @@ void stop() {
 
   running = false;
   stepState = LOW;
-  digitalWrite(SLEEP, LOW);
+  digitalWrite(ENABLE, HIGH);
   digitalWrite(STEP, 0);
   analogWrite(RUNNING_LED, 0);
 }
@@ -233,7 +233,7 @@ void start() {
   running = true;
   updateRunningLedBrightness();
   digitalWrite(DIR, direction);
-  digitalWrite(SLEEP, HIGH);
+  digitalWrite(ENABLE, LOW);
   // Docs say to wait a millisecond before sending ticks to the motor
   delay(1);
 
